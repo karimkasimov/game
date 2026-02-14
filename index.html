@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0B0E14">
+<title>СУВЕРЕН: Глобальная Экономика</title>
+<style>
+    /* * ======================================================================================
+     * ГЛОБАЛЬНЫЕ СТИЛИ И ПЕРЕМЕННЫЕ (CORE STYLES)
+     * ======================================================================================
+     */
+    :root {
+        --bg-core: #050608;
+        --bg-panel: #11141A;
+        --bg-card: #1A1F26;
+        --bg-input: #0e1014;
+        
+        --color-primary: #3B82F6;
+        --color-primary-dark: #1d4ed8;
+        --color-accent: #8B5CF6;
+        --color-success: #10B981;
+        --color-danger: #EF4444;
+        --color-warning: #F59E0B;
+        --color-text: #E5E7EB;
+        --color-muted: #6B7280;
+        
+        --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        --glow-primary: 0 0 15px rgba(59, 130, 246, 0.3);
+        --border-radius: 12px;
+        --nav-height: 75px;
+        
+        --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+        background-color: var(--bg-core);
+        color: var(--color-text);
+        font-family: var(--font-main);
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        user-select: none;
+    }
+
+    /* SCROLLBAR CUSTOMIZATION */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg-core); }
+    ::-webkit-scrollbar-thumb { background: var(--bg-card); border-radius: 4px; }
+
+    /* TYPOGRAPHY */
+    h1, h2, h3, h4 { margin: 0; font-weight: 700; letter-spacing: -0.5px; }
+    .text-xs { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .text-sm { font-size: 13px; }
+    .text-lg { font-size: 18px; }
+    .text-xl { font-size: 24px; }
+    .text-mono { font-family: 'Courier New', monospace; letter-spacing: -0.5px; }
+    .text-muted { color: var(--color-muted); }
+    .text-success { color: var(--color-success); }
+    .text-danger { color: var(--color-danger); }
+    .text-warning { color: var(--color-warning); }
+    .text-primary { color: var(--color-primary); }
+
+    /* LAYOUT UTILS */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-center { align-items: center; justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .items-center { align-items: center; }
+    .gap-1 { gap: 0.5rem; }
+    .gap-2 { gap: 1rem; }
+    .w-full { width: 100%; }
+    .p-2 { padding: 1rem; }
+    
+    /* ======================================================================================
+     * UI КОМПОНЕНТЫ (COMPONENTS)
+     * ======================================================================================
+     */
+    
+    /* HEADER */
+    header {
+        height: 60px;
+        background: rgba(17, 20, 26, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .currency-badge {
+        background: var(--bg-card);
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.05);
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* MAIN CONTENT VIEWPORT */
+    #viewport {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        padding-bottom: 100px; /* Space for nav */
+        position: relative;
+    }
+
+    /* SECTIONS (TABS) */
+    .view-section {
+        display: none;
+        animation: fadeIn 0.4s ease-out;
+    }
+    .view-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* CARDS */
+    .card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        padding: 16px;
+        margin-bottom: 16px;
+        border: 1px solid rgba(255,255,255,0.03);
+        position: relative;
+        overflow: hidden;
+    }
+    .card::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+        background: var(--color-primary); opacity: 0; transition: 0.3s;
+    }
+    .card:hover::before { opacity: 1; }
+
+    /* INTERACTIVE ELEMENTS */
+    button {
+        background: var(--bg-panel);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--color-text);
+        padding: 10px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+        font-size: 14px;
+    }
+    button:active { transform: scale(0.96); }
+    button.primary { background: var(--color-primary); border-color: transparent; box-shadow: var(--glow-primary); }
+    button.danger { background: rgba(239, 68, 68, 0.2); border-color: var(--color-danger); color: var(--color-danger); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+    /* NAV BAR */
+    nav {
+        position: fixed;
+        bottom: 0; left: 0; width: 100%;
+        height: var(--nav-height);
+        background: rgba(17, 20, 26, 0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255,255,255,0.05);
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        z-index: 200;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: var(--color-muted); font-size: 10px; cursor: pointer; transition: 0.3s;
+        background: none; border: none;
+    }
+    .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
+    .nav-item.active { color: var(--color-primary); transform: translateY(-2px); }
+    .nav-item.active svg { fill: var(--color-primary); filter: drop-shadow(0 0 5px var(--color-primary)); }
+
+    /* SPECIFIC MODULES */
+    
+    /* Tap Button */
+    .tap-area {
+        height: 220px;
+        display: flex; align-items: center; justify-content: center;
+        position: relative;
+        perspective: 1000px;
+    }
+    .tap-btn {
+        width: 180px; height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, #4B5563, #1F2937);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.1);
+        border: 4px solid #374151;
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.1s;
+        z-index: 10;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .tap-btn:active { transform: scale(0.95) rotateX(10deg); }
+    .tap-btn.energized {
+        background: radial-gradient(circle at 30% 30%, var(--color-primary), #1e3a8a);
+        border-color: #1d4ed8;
+        box-shadow: 0 0 30px var(--color-primary-dark);
+    }
+
+    /* Floating Numbers */
+    .floating-num {
+        position: absolute; pointer-events: none;
+        font-weight: bold; font-size: 20px;
+        animation: floatUp 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        z-index: 100; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-80px) scale(1.5); } }
+
+    /* Energy Bar */
+    .energy-container {
+        width: 100%; height: 6px; background: #374151; border-radius: 3px; margin-top: 20px; overflow: hidden;
+    }
+    .energy-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #F59E0B, #EF4444); transition: width 0.3s; }
+
+    /* Charts */
+    .chart-box {
+        width: 100%; height: 200px;
+        background: rgba(0,0,0,0.2);
+        border-radius: 8px;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    canvas { width: 100%; height: 100%; display: block; }
+
+    /* Lists */
+    .list-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .list-item:last-child { border: none; }
+    
+    /* Toast Notifications */
+    .toast-zone {
+        position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+        z-index: 1000; width: 90%; max-width: 400px;
+        pointer-events: none;
+        display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+        background: rgba(31, 41, 55, 0.95);
+        color: white; padding: 12px 16px; border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        display: flex; align-items: center; gap: 10px;
+        animation: slideIn 0.3s ease-out;
+        border-left: 4px solid var(--color-primary);
+    }
+    @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* CRT Effect Overlay for "Retro" feel */
+    .crt::before {
+        content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none;
+    }
+</style>
+</head>
+<body>
+
+<div class="toast-zone" id="toast-zone"></div>
+
+<header>
+    <div class="flex items-center gap-2">
+        <div style="width: 10px; height: 10px; background: var(--color-success); border-radius: 50%; box-shadow: 0 0 10px var(--color-success);"></div>
+        <span class="text-xs text-muted">СУВЕРЕН OS v2.0</span>
+    </div>
+    <div class="currency-badge">
+        <span style="color:var(--color-warning)">₽</span>
+        <span id="ui-balance" class="text-mono">0</span>
+    </div>
+</header>
+
+<div id="viewport">
+
+    <section id="tab-dash" class="view-section active">
+        <div class="card crt">
+            <div class="flex justify-between items-center">
+                <h3 class="text-muted">ОПЕРАЦИОННЫЙ ЦЕНТР</h3>
+                <span id="ui-lvl" class="text-xs text-primary border p-2" style="border-radius:4px; border-color:rgba(59,130,246,0.3)">УРОВЕНЬ 1</span>
+            </div>
+            
+            <div class="tap-area">
+                <button id="click-btn" class="tap-btn energized">
+                    <span style="font-size: 32px;">⚡</span>
+                    <span class="text-xs" style="margin-top:5px; opacity:0.7;">ДОБЫЧА</span>
+                </button>
+            </div>
+
+            <div class="flex justify-between text-xs text-muted" style="margin-top:10px;">
+                <span>ЭНЕРГЕТИЧЕСКИЙ РЕЗЕРВ</span>
+                <span id="ui-energy-text">100 / 100</span>
+            </div>
+            <div class="energy-container">
+                <div id="ui-energy-bar" class="energy-fill"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4 class="text-muted text-xs" style="margin-bottom:10px;">ФИНАНСОВЫЕ ПОТОКИ</h4>
+            <div class="flex justify-between items-center" style="margin-bottom: 8px;">
+                <span class="text-sm">Активный доход</span>
+                <span id="ui-click-val" class="text-success text-mono fw-bold">+1.00 ₽</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm">Пассивный доход</span>
+                <span id="ui-passive-val" class="text-primary text-mono fw-bold">+0.00 ₽/сек</span>
+            </div>
+        </div>
+
+        <div class="card" style="border-color: var(--color-warning);">
+            <div class="flex justify-between">
+                <h4 class="text-warning">ГЛОБАЛЬНЫЙ ТИКЕР</h4>
+                <div class="text-xs text-muted" id="ui-game-date">ДЕНЬ 1</div>
+            </div>
+            <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 8px 0;"></div>
+            <div id="news-ticker" class="text-sm text-mono" style="opacity: 0.8; min-height: 40px;">
+                Система инициализирована. Ожидание данных рынка...
+            </div>
+        </div>
+    </section>
+
+    <section id="tab-world" class="view-section">
+        <h2 style="margin-bottom: 16px;">ГЕОПОЛИТИКА</h2>
+        
+        <div class="card">
+            <h4 class="text-muted text-xs">МИРОВЫЕ ИНДИКАТОРЫ</h4>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                <div class="text-center">
+                    <div class="text-xs text-muted">СРЕДНЯЯ ИНФЛЯЦИЯ</div>
+                    <div id="ui-global-inf" class="text-lg text-danger">0.0%</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs text-muted">ГЛОБАЛЬНЫЙ ВВП</div>
+                    <div id="ui-global-gdp" class="text-lg text-success">0 T$</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs text-muted">КЛИМАТ. РИСК</div>
+                    <div id="ui-climate-risk" class="text-lg text-warning">0.0</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs text-muted">CO2 (PPM)</div>
+                    <div id="ui-co2" class="text-lg">420</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="countries-list">
+            </div>
+    </section>
+
+    <section id="tab-market" class="view-section">
+        <div class="flex justify-between items-center" style="margin-bottom:16px;">
+            <h2>БИРЖА</h2>
+            <div class="text-xs text-muted">LIVE FEED</div>
+        </div>
+
+        <div class="chart-box">
+            <canvas id="main-chart"></canvas>
+            <div style="position:absolute; top:10px; left:10px; font-size:10px; color:rgba(255,255,255,0.5);" id="chart-label">НЕФТЬ (BRENT)</div>
+        </div>
+
+        <div class="flex gap-1" style="overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px;">
+            <button class="text-xs" onclick="Game.ui.setChart('oil')">НЕФТЬ</button>
+            <button class="text-xs" onclick="Game.ui.setChart('gold')">ЗОЛОТО</button>
+            <button class="text-xs" onclick="Game.ui.setChart('tech')">ТЕХНО</button>
+            <button class="text-xs" onclick="Game.ui.setChart('crypto')">КРИПТО</button>
+        </div>
+
+        <div id="market-list">
+            </div>
+    </section>
+
+    <section id="tab-upgrades" class="view-section">
+        <h2 style="margin-bottom: 16px;">ИНВЕСТИЦИИ</h2>
+        
+        <div class="flex gap-2" style="margin-bottom: 16px;">
+            <button class="w-full primary" onclick="Game.ui.filterUpgrades('click')">АКТИВНЫЕ</button>
+            <button class="w-full" onclick="Game.ui.filterUpgrades('passive')">БИЗНЕС</button>
+        </div>
+
+        <div id="upgrades-list">
+            </div>
+    </section>
+
+    <section id="tab-profile" class="view-section">
+        <h2 style="margin-bottom: 16px;">ДОСЬЕ</h2>
+
+        <div class="card">
+            <h4 class="text-muted text-xs">СТАТИСТИКА</h4>
+            <div class="list-item">
+                <span class="text-sm">Всего кликов</span>
+                <span id="stat-clicks" class="text-mono">0</span>
+            </div>
+            <div class="list-item">
+                <span class="text-sm">Заработано (Всего)</span>
+                <span id="stat-earned" class="text-mono">0</span>
+            </div>
+            <div class="list-item">
+                <span class="text-sm">Время в сессии</span>
+                <span id="stat-time" class="text-mono">00:00:00</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4 class="text-muted text-xs">ЗАДАЧИ</h4>
+            <div id="tasks-list"></div>
+        </div>
+
+        <div class="card" style="border-color: var(--color-danger);">
+            <h4 class="text-danger text-xs">УПРАВЛЕНИЕ ДАННЫМИ</h4>
+            <p class="text-xs text-muted" style="margin: 10px 0;">Данные сохраняются автоматически в LocalStorage.</p>
+            <button class="w-full danger" onclick="Game.system.hardReset()">СБРОСИТЬ ПРОГРЕСС</button>
+        </div>
+    </section>
+
+</div>
+
+<nav>
+    <button class="nav-item active" onclick="Game.ui.switchTab('tab-dash', this)">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        ГЛАВНАЯ
+    </button>
+    <button class="nav-item" onclick="Game.ui.switchTab('tab-market', this)">
+        <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+        РЫНОК
+    </button>
+    <button class="nav-item" onclick="Game.ui.switchTab('tab-world', this)">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        МИР
+    </button>
+    <button class="nav-item" onclick="Game.ui.switchTab('tab-upgrades', this)">
+        <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        БИЗНЕС
+    </button>
+    <button class="nav-item" onclick="Game.ui.switchTab('tab-profile', this)">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        ДОСЬЕ
+    </button>
+</nav>
+
+<script>
+/**
+ * ======================================================================================
+ * СУВЕРЕН: ЯДРО (CORE ENGINE)
+ * Fully modular Vanilla JS architecture.
+ * ======================================================================================
+ */
+
+const Utils = {
+    // Math Helpers
+    clamp: (num, min, max) => Math.min(Math.max(num, min), max),
+    rand: (min, max) => Math.random() * (max - min) + min,
+    randInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+    
+    // Gaussian Box-Muller for realistic market noise
+    gaussian: (mean = 0, stdev = 1) => {
+        let u = 1 - Math.random(), v = Math.random();
+        let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        return z * stdev + mean;
+    },
+
+    // Formatters
+    fmtMoney: (n) => {
+        if (n >= 1e12) return (n/1e12).toFixed(2) + ' T₽';
+        if (n >= 1e9) return (n/1e9).toFixed(2) + ' B₽';
+        if (n >= 1e6) return (n/1e6).toFixed(2) + ' M₽';
+        if (n >= 1e3) return (n/1e3).toFixed(1) + ' k₽';
+        return n.toFixed(1) + ' ₽';
+    },
+    
+    // Unique ID
+    uid: () => Date.now().toString(36) + Math.random().toString(36).substr(2)
+};
+
+/* --- DATA CONFIGURATION --- */
+
+const CONFIG = {
+    fps: 30,
+    autoSaveInterval: 10000,
+    baseEnergy: 100,
+    chartPoints: 40
+};
+
+const COUNTRIES_DB = [
+    { id: 'ru', name: 'Федерация Норд', gdp: 1700, inf: 0.05, risk: 0.2, pop: 145 },
+    { id: 'us', name: 'Атлантический Альянс', gdp: 23000, inf: 0.02, risk: 0.1, pop: 330 },
+    { id: 'cn', name: 'Восточная Империя', gdp: 18000, inf: 0.03, risk: 0.3, pop: 1400 },
+    { id: 'eu', name: 'Евро-Союз', gdp: 17500, inf: 0.025, risk: 0.15, pop: 450 },
+    { id: 'in', name: 'Республика Бхарат', gdp: 3000, inf: 0.06, risk: 0.4, pop: 1380 }
+];
+
+const ASSETS_DB = [
+    { id: 'oil', name: 'Нефть Brent', price: 80.0, vol: 0.02, type: 'comm' },
+    { id: 'gold', name: 'Золото XAU', price: 1950.0, vol: 0.005, type: 'comm' },
+    { id: 'gas', name: 'Природный Газ', price: 2.5, vol: 0.04, type: 'comm' },
+    { id: 'tech', name: 'Индекс TECH', price: 4000.0, vol: 0.015, type: 'index' },
+    { id: 'crypto', name: 'Bitcoin Core', price: 35000.0, vol: 0.08, type: 'crypto' },
+    { id: 'rub_usd', name: 'RUB/USD FX', price: 90.0, vol: 0.01, type: 'fx' }
+];
+
+const UPGRADES_DB = [
+    { id: 'c1', type: 'click', name: 'Улучшенный клик', base: 50, mult: 1.5, bonus: 1, desc: '+1 к клику' },
+    { id: 'c2', type: 'click', name: 'Энергетик', base: 250, mult: 1.6, bonus: 5, desc: '+5 к клику' },
+    { id: 'c3', type: 'click', name: 'Нейро-интерфейс', base: 1000, mult: 1.7, bonus: 20, desc: '+20 к клику' },
+    { id: 'c4', type: 'click', name: 'Квантовый ввод', base: 5000, mult: 1.8, bonus: 100, desc: '+100 к клику' },
+    { id: 'p1', type: 'passive', name: 'Банковский вклад', base: 100, mult: 1.3, bonus: 1, desc: '+1 ₽/сек' },
+    { id: 'p2', type: 'passive', name: 'Ларек с шаурмой', base: 500, mult: 1.4, bonus: 5, desc: '+5 ₽/сек' },
+    { id: 'p3', type: 'passive', name: 'Видеокарты', base: 2000, mult: 1.5, bonus: 25, desc: '+25 ₽/сек' },
+    { id: 'p4', type: 'passive', name: 'Нефтяная вышка', base: 10000, mult: 1.6, bonus: 150, desc: '+150 ₽/сек' },
+    { id: 'p5', type: 'passive', name: 'Космическая программа', base: 100000, mult: 1.8, bonus: 1000, desc: '+1k ₽/сек' }
+];
+
+const TASKS_DB = [
+    { id: 't1', desc: 'Сделать 100 кликов', type: 'click', target: 100, reward: 100, done: false },
+    { id: 't2', desc: 'Накопить 5000 ₽', type: 'balance', target: 5000, reward: 1000, done: false },
+    { id: 't3', desc: 'Достичь 5 уровня', type: 'lvl', target: 5, reward: 2500, done: false }
+];
+
+/* --- STATE MANAGEMENT --- */
+
+class State {
+    constructor() {
+        this.data = this.load() || this.default();
+    }
+
+    default() {
+        return {
+            player: {
+                balance: 0,
+                clickPower: 1,
+                passiveIncome: 0,
+                energy: 100,
+                maxEnergy: 100,
+                xp: 0,
+                lvl: 1,
+                stats: { clicks: 0, earned: 0, startTime: Date.now() }
+            },
+            economy: {
+                day: 0,
+                countries: JSON.parse(JSON.stringify(COUNTRIES_DB)),
+                assets: JSON.parse(JSON.stringify(ASSETS_DB)),
+                history: {}, // For charts
+                global: { co2: 420, temp: 1.1, risk: 0 }
+            },
+            upgrades: {}, // id: level
+            tasks: JSON.parse(JSON.stringify(TASKS_DB)),
+            settings: { sound: true }
+        };
+    }
+
+    initHistory() {
+        // Init chart arrays if empty
+        this.data.economy.assets.forEach(a => {
+            if (!this.data.economy.history[a.id]) {
+                this.data.economy.history[a.id] = new Array(CONFIG.chartPoints).fill(a.price);
+            }
+        });
+    }
+
+    save() {
+        try {
+            localStorage.setItem('SUVEREN_SAVE', JSON.stringify(this.data));
+            // Game.ui.toast('Игра сохранена', 'success'); // Too spammy if auto
+        } catch(e) { console.error("Save failed", e); }
+    }
+
+    load() {
+        const str = localStorage.getItem('SUVEREN_SAVE');
+        if (str) return JSON.parse(str);
+        return null;
+    }
+
+    reset() {
+        localStorage.removeItem('SUVEREN_SAVE');
+        location.reload();
+    }
+}
+
+/* --- LOGIC MODULES --- */
+
+class EconomyEngine {
+    constructor(state) {
+        this.state = state;
+        this.state.initHistory();
+    }
+
+    tick(dt) {
+        // Passive Income
+        const p = this.state.data.player;
+        if (p.passiveIncome > 0) {
+            const income = p.passiveIncome * dt; // dt in seconds
+            p.balance += income;
+            p.stats.earned += income;
+        }
+
+        // Energy Regen
+        if (p.energy < p.maxEnergy) {
+            p.energy += 5 * dt;
+            if (p.energy > p.maxEnergy) p.energy = p.maxEnergy;
+        }
+    }
+
+    simMarket() {
+        const econ = this.state.data.economy;
+        econ.day++;
+
+        // Sim Assets
+        econ.assets.forEach(a => {
+            const hist = econ.history[a.id];
+            
+            // Random Walk with drift based on macro
+            const drift = (econ.global.risk > 0.5 && a.id === 'gold') ? 0.005 : 0; // Gold up in crisis
+            const noise = Utils.gaussian(0, a.vol);
+            
+            let change = 1 + noise + drift;
+            a.price *= change;
+            
+            // Clamp
+            if (a.price < 0.01) a.price = 0.01;
+
+            // Update History
+            hist.push(a.price);
+            if (hist.length > CONFIG.chartPoints) hist.shift();
+        });
+
+        // Sim Countries
+        econ.countries.forEach(c => {
+            c.inf = Utils.clamp(c.inf + Utils.gaussian(0, 0.001), 0.0, 0.5);
+            c.gdp = c.gdp * (1 + (0.03 - c.inf) / 365); // Daily growth approx
+            
+            // Random Events
+            if (Math.random() < 0.01) {
+                c.risk += 0.1;
+                Game.ui.toast(`${c.name}: Политическая нестабильность!`, 'danger');
+            } else {
+                c.risk = Math.max(0, c.risk - 0.005);
+            }
+        });
+
+        // Global Climate
+        econ.global.co2 += 0.01;
+        econ.global.risk = Utils.clamp((econ.global.co2 - 350) / 200, 0, 1);
+    }
+}
+
+class PlayerSystem {
+    constructor(state) {
+        this.state = state;
+    }
+
+    click() {
+        const p = this.state.data.player;
+        if (p.energy < 10) {
+            Game.ui.toast('Недостаточно энергии!', 'warning');
+            return 0;
+        }
+
+        p.energy -= 10;
+        
+        // Critical Logic
+        let val = p.clickPower;
+        const isCrit = Math.random() < (0.05 + p.lvl * 0.01);
+        if (isCrit) val *= 3;
+
+        p.balance += val;
+        p.stats.clicks++;
+        p.stats.earned += val;
+
+        // XP Logic
+        p.xp += 1;
+        const req = 100 * Math.pow(1.5, p.lvl);
+        if (p.xp >= req) {
+            p.lvl++;
+            p.xp = 0;
+            p.maxEnergy += 10;
+            p.energy = p.maxEnergy;
+            Game.ui.toast(`Уровень повышен! LVL ${p.lvl}`, 'success');
+        }
+
+        this.checkTasks();
+        return { val, isCrit };
+    }
+
+    buyUpgrade(id) {
+        const uDef = UPGRADES_DB.find(x => x.id === id);
+        const p = this.state.data.player;
+        const currentLvl = this.state.data.upgrades[id] || 0;
+        
+        // Cost formula: Base * (Mult ^ Level)
+        const cost = Math.floor(uDef.base * Math.pow(uDef.mult, currentLvl));
+
+        if (p.balance >= cost) {
+            p.balance -= cost;
+            this.state.data.upgrades[id] = currentLvl + 1;
+            
+            if (uDef.type === 'click') p.clickPower += uDef.bonus;
+            if (uDef.type === 'passive') p.passiveIncome += uDef.bonus;
+            
+            Game.ui.toast(`Куплено: ${uDef.name}`, 'success');
+            return true;
+        } else {
+            Game.ui.toast('Недостаточно средств', 'danger');
+            return false;
+        }
+    }
+
+    checkTasks() {
+        const p = this.state.data.player;
+        this.state.data.tasks.forEach(t => {
+            if (!t.done) {
+                let current = 0;
+                if (t.type === 'click') current = p.stats.clicks;
+                if (t.type === 'balance') current = p.balance;
+                if (t.type === 'lvl') current = p.lvl;
+
+                if (current >= t.target) {
+                    t.done = true;
+                    p.balance += t.reward;
+                    Game.ui.toast(`Задача выполнена: +${t.reward}₽`, 'success');
+                    Game.ui.renderProfile();
+                }
+            }
+        });
+    }
+}
+
+/* --- UI CONTROLLER --- */
+
+class UIController {
+    constructor(state) {
+        this.state = state;
+        this.chartAsset = 'oil';
+        this.activeFilter = 'click';
+        
+        // Elements
+        this.els = {
+            balance: document.getElementById('ui-balance'),
+            energyBar: document.getElementById('ui-energy-bar'),
+            energyText: document.getElementById('ui-energy-text'),
+            clickVal: document.getElementById('ui-click-val'),
+            passVal: document.getElementById('ui-passive-val'),
+            chart: document.getElementById('main-chart'),
+            countries: document.getElementById('countries-list'),
+            market: document.getElementById('market-list'),
+            upgrades: document.getElementById('upgrades-list')
+        };
+    }
+
+    init() {
+        // Resize Canvas
+        this.els.chart.width = this.els.chart.parentElement.clientWidth;
+        this.els.chart.height = this.els.chart.parentElement.clientHeight;
+
+        // Binds
+        document.getElementById('click-btn').addEventListener('touchstart', (e) => {
+             e.preventDefault(); // Stop zoom
+             this.handleTap(e.touches[0].clientX, e.touches[0].clientY);
+        }, {passive: false});
+
+        document.getElementById('click-btn').addEventListener('mousedown', (e) => {
+             this.handleTap(e.clientX, e.clientY);
+        });
+
+        // Initial Renders
+        this.renderUpgrades();
+        this.renderMarket();
+        this.renderCountries();
+        this.renderProfile();
+    }
+
+    handleTap(x, y) {
+        const res = Game.player.click();
+        if (res === 0) return;
+
+        // Visuals
+        const btn = document.getElementById('click-btn');
+        btn.style.transform = 'scale(0.9)';
+        setTimeout(() => btn.style.transform = 'scale(1)', 100);
+
+        // Floating Text
+        const el = document.createElement('div');
+        el.className = 'floating-num';
+        el.innerText = `+${Utils.fmtMoney(res.val)}`;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        if (res.isCrit) {
+            el.style.color = '#F59E0B';
+            el.style.fontSize = '24px';
+            el.innerText += ' 🔥';
+        } else {
+            el.style.color = '#10B981';
+        }
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+
+        this.updateFast();
+    }
+
+    // High frequency updates (Animation Frame)
+    updateFast() {
+        const p = this.state.data.player;
+        this.els.balance.innerText = Utils.fmtMoney(p.balance);
+        this.els.energyBar.style.width = (p.energy / p.maxEnergy * 100) + '%';
+        this.els.energyText.innerText = `${Math.floor(p.energy)} / ${p.maxEnergy}`;
+        this.els.clickVal.innerText = `+${Utils.fmtMoney(p.clickPower)}`;
+        this.els.passVal.innerText = `+${Utils.fmtMoney(p.passiveIncome)}/сек`;
+        document.getElementById('ui-lvl').innerText = `УРОВЕНЬ ${p.lvl}`;
+    }
+
+    // Medium frequency (1s)
+    updateSlow() {
+        document.getElementById('ui-game-date').innerText = `ДЕНЬ ${this.state.data.economy.day}`;
+        document.getElementById('stat-time').innerText = new Date(Date.now() - this.state.data.player.stats.startTime).toISOString().substr(11, 8);
+        
+        // Update Chart
+        this.drawChart();
+        
+        // Update Lists if active
+        if (document.getElementById('tab-market').classList.contains('active')) this.renderMarket();
+        if (document.getElementById('tab-world').classList.contains('active')) this.renderCountries();
+    }
+
+    drawChart() {
+        const ctx = this.els.chart.getContext('2d');
+        const w = this.els.chart.width;
+        const h = this.els.chart.height;
+        const data = this.state.data.economy.history[this.chartAsset];
+        
+        // Clear
+        ctx.clearRect(0,0,w,h);
+        
+        if (!data || data.length < 2) return;
+
+        const min = Math.min(...data) * 0.99;
+        const max = Math.max(...data) * 1.01;
+        const range = max - min;
+        const step = w / (data.length - 1);
+
+        // Draw Line
+        ctx.beginPath();
+        ctx.strokeStyle = '#3B82F6';
+        ctx.lineWidth = 2;
+        
+        data.forEach((val, i) => {
+            const x = i * step;
+            const y = h - ((val - min) / range * h);
+            if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        });
+        ctx.stroke();
+
+        // Gradient Fill
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        const grad = ctx.createLinearGradient(0,0,0,h);
+        grad.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+        grad.addColorStop(1, 'rgba(59, 130, 246, 0)');
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Price Text
+        ctx.fillStyle = '#fff';
+        ctx.font = '12px monospace';
+        ctx.fillText(data[data.length-1].toFixed(2), w - 50, 20);
+    }
+
+    renderMarket() {
+        let html = '';
+        this.state.data.economy.assets.forEach(a => {
+            const hist = this.state.data.economy.history[a.id];
+            const prev = hist[hist.length-2] || a.price;
+            const diff = ((a.price - prev) / prev) * 100;
+            const color = diff >= 0 ? 'text-success' : 'text-danger';
+            const sign = diff >= 0 ? '+' : '';
+            
+            html += `
+            <div class="list-item" onclick="Game.ui.setChart('${a.id}')">
+                <div>
+                    <div style="font-weight:bold">${a.name}</div>
+                    <div class="text-xs text-muted">${a.type.toUpperCase()}</div>
+                </div>
+                <div style="text-align:right">
+                    <div class="text-mono">${a.price.toFixed(2)}</div>
+                    <div class="text-xs ${color}">${sign}${diff.toFixed(2)}%</div>
+                </div>
+            </div>`;
+        });
+        this.els.market.innerHTML = html;
+        
+        // Sentiment Panel
+        const econ = this.state.data.economy;
+        document.getElementById('ui-global-inf').innerText = (econ.countries[0].inf*100).toFixed(1) + '%';
+        document.getElementById('ui-global-gdp').innerText = Utils.fmtMoney(econ.countries.reduce((a,c)=>a+c.gdp,0));
+        document.getElementById('ui-climate-risk').innerText = econ.global.risk.toFixed(2);
+        document.getElementById('ui-co2').innerText = econ.global.co2.toFixed(0);
+    }
+
+    renderCountries() {
+        let html = '';
+        this.state.data.economy.countries.forEach(c => {
+            html += `
+            <div class="card">
+                <div class="flex justify-between">
+                    <span style="font-weight:bold;">${c.name}</span>
+                    <span class="text-xs text-warning">РИСК: ${(c.risk*100).toFixed(0)}%</span>
+                </div>
+                <div class="flex justify-between text-sm" style="margin-top:5px;">
+                    <span class="text-muted">ВВП: ${Utils.fmtMoney(c.gdp)}B</span>
+                    <span class="text-muted">Инфляция: ${(c.inf*100).toFixed(1)}%</span>
+                </div>
+                <div style="width:100%; height:4px; background:#333; margin-top:5px; border-radius:2px;">
+                    <div style="width:${c.risk*100}%; height:100%; background:${c.risk > 0.5 ? '#EF4444' : '#10B981'}"></div>
+                </div>
+            </div>`;
+        });
+        this.els.countries.innerHTML = html;
+    }
+
+    renderUpgrades() {
+        let html = '';
+        UPGRADES_DB.filter(u => u.type === this.activeFilter).forEach(u => {
+            const currentLvl = this.state.data.upgrades[u.id] || 0;
+            const cost = Math.floor(u.base * Math.pow(u.mult, currentLvl));
+            const canAfford = this.state.data.player.balance >= cost;
+            
+            html += `
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-weight:bold">${u.name} <span class="text-xs text-primary">L${currentLvl}</span></div>
+                    <div class="text-xs text-muted">${u.desc}</div>
+                </div>
+                <button class="${canAfford ? 'primary' : ''}" 
+                    onclick="Game.buyUpgrade('${u.id}')" 
+                    ${!canAfford ? 'disabled' : ''}>
+                    ${Utils.fmtMoney(cost)}
+                </button>
+            </div>`;
+        });
+        this.els.upgrades.innerHTML = html;
+    }
+
+    renderProfile() {
+        const p = this.state.data.player;
+        document.getElementById('stat-clicks').innerText = p.stats.clicks;
+        document.getElementById('stat-earned').innerText = Utils.fmtMoney(p.stats.earned);
+
+        let tasksHtml = '';
+        this.state.data.tasks.forEach(t => {
+            if(t.done) return;
+            tasksHtml += `
+            <div class="list-item">
+                <span class="text-sm">${t.desc}</span>
+                <span class="text-xs text-warning">+${t.reward}₽</span>
+            </div>`;
+        });
+        if(tasksHtml === '') tasksHtml = '<div class="text-xs text-muted text-center">Все задачи выполнены</div>';
+        document.getElementById('tasks-list').innerHTML = tasksHtml;
+    }
+
+    // Interactions
+    switchTab(id, btn) {
+        document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        
+        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Trigger render for that tab
+        if(id === 'tab-market') this.renderMarket();
+        if(id === 'tab-world') this.renderCountries();
+        if(id === 'tab-upgrades') this.renderUpgrades();
+        if(id === 'tab-profile') this.renderProfile();
+    }
+
+    setChart(id) {
+        this.chartAsset = id;
+        document.getElementById('chart-label').innerText = ASSETS_DB.find(x => x.id === id).name.toUpperCase();
+        this.drawChart();
+    }
+
+    filterUpgrades(type) {
+        this.activeFilter = type;
+        this.renderUpgrades();
+    }
+
+    toast(msg, type='primary') {
+        const zone = document.getElementById('toast-zone');
+        const el = document.createElement('div');
+        el.className = 'toast';
+        el.style.borderLeftColor = `var(--color-${type})`;
+        el.innerHTML = `<span>${msg}</span>`;
+        zone.appendChild(el);
+        setTimeout(() => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(-20px)';
+            setTimeout(() => el.remove(), 300);
+        }, 3000);
+    }
+}
+
+/* --- MAIN ENTRY POINT --- */
+
+const Game = {
+    state: null,
+    economy: null,
+    player: null,
+    ui: null,
+    lastTime: 0,
+    system: {
+        hardReset: () => {
+            if(confirm('Удалить весь прогресс? Это действие необратимо.')) Game.state.reset();
+        }
+    },
+    
+    start: () => {
+        Game.state = new State();
+        Game.economy = new EconomyEngine(Game.state);
+        Game.player = new PlayerSystem(Game.state);
+        Game.ui = new UIController(Game.state);
+        
+        Game.ui.init();
+        Game.lastTime = Date.now();
+        
+        // Loops
+        requestAnimationFrame(Game.loop);
+        setInterval(() => Game.economy.simMarket(), 1000); // Market Tick
+        setInterval(() => Game.ui.updateSlow(), 1000); // UI Slow Tick
+        setInterval(() => Game.state.save(), CONFIG.autoSaveInterval); // Save
+        
+        Game.buyUpgrade = (id) => {
+            if(Game.player.buyUpgrade(id)) {
+                Game.ui.renderUpgrades();
+                Game.ui.updateFast();
+            }
+        };
+    },
+
+    loop: () => {
+        const now = Date.now();
+        const dt = (now - Game.lastTime) / 1000;
+        Game.lastTime = now;
+
+        Game.economy.tick(dt);
+        Game.ui.updateFast();
+
+        requestAnimationFrame(Game.loop);
+    }
+};
+
+// BOOT
+window.onload = Game.start;
+
+</script>
+</body>
+</html>
